@@ -1,0 +1,976 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kairos Calendar Agent</title>
+    <meta
+      name="description"
+      content="Kairos is an invite-only calendar agent that helps find availability across selected Google and Microsoft calendars, scheduling preferences, and email requests."
+    >
+    <style>
+      :root {
+        color-scheme: light;
+        --text: #102033;
+        --muted: #5b6878;
+        --line: #d9e1ea;
+        --surface: #ffffff;
+        --surface-soft: #f7f9fc;
+        --blue: #1674a8;
+        --blue-dark: #0a3f67;
+        --teal: #0f766e;
+        --mint: #eaf7f4;
+        --gold: #b7791f;
+        --shadow: 0 18px 45px rgba(16, 32, 51, 0.11);
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--text);
+        background:
+          linear-gradient(180deg, #f3f8fb 0%, #ffffff 28%, #f7fafc 100%);
+      }
+      a { color: inherit; }
+      .page { min-height: 100vh; }
+      .nav {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 14px clamp(18px, 4vw, 52px);
+        border-bottom: 1px solid rgba(217, 225, 234, 0.82);
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(14px);
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+      }
+      .nav-brand img { width: 38px; height: 38px; object-fit: contain; }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 14px;
+        color: var(--muted);
+        font-size: 14px;
+        flex-wrap: wrap;
+      }
+      .nav-links a { text-decoration: none; }
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 0 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--text);
+        text-decoration: none;
+        font-weight: 750;
+        font-size: 14px;
+      }
+      .button.primary {
+        border-color: var(--blue);
+        background: var(--blue);
+        color: #ffffff;
+      }
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.02fr) minmax(320px, 0.98fr);
+        gap: clamp(28px, 4vw, 58px);
+        align-items: center;
+        padding: clamp(36px, 6vw, 76px) clamp(18px, 4vw, 52px) 30px;
+        max-width: 1180px;
+        margin: 0 auto;
+      }
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        padding: 0 10px;
+        border: 1px solid rgba(15, 118, 110, 0.24);
+        border-radius: 8px;
+        background: var(--mint);
+        color: var(--teal);
+        font-size: 13px;
+        font-weight: 800;
+      }
+      h1 {
+        margin: 20px 0 14px;
+        max-width: 720px;
+        font-size: clamp(42px, 7vw, 74px);
+        line-height: 0.95;
+        letter-spacing: 0;
+      }
+      .lead {
+        margin: 0;
+        max-width: 650px;
+        color: var(--muted);
+        font-size: clamp(18px, 2vw, 22px);
+        line-height: 1.45;
+      }
+      .hero-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 24px;
+      }
+      .hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 20px;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.78);
+        padding: 0 10px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .hero-media {
+        display: grid;
+        gap: 14px;
+        align-items: center;
+      }
+      .logo-panel {
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+        padding: 22px;
+      }
+      .logo-panel img {
+        width: min(100%, 320px);
+        height: auto;
+      }
+      .app-preview {
+        display: grid;
+        grid-template-columns: minmax(170px, 0.42fr) minmax(0, 1fr);
+        min-height: 410px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        background: var(--surface);
+        overflow: hidden;
+      }
+      .preview-sidebar {
+        border-right: 1px solid var(--line);
+        background: var(--surface-soft);
+        padding: 16px;
+        display: grid;
+        align-content: start;
+        gap: 10px;
+      }
+      .preview-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 850;
+        margin-bottom: 8px;
+      }
+      .preview-logo img { width: 42px; height: 42px; object-fit: contain; }
+      .preview-control,
+      .preview-account,
+      .preview-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        padding: 10px;
+      }
+      .preview-control span,
+      .preview-account span,
+      .preview-card span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.4;
+      }
+      .preview-control strong,
+      .preview-account strong,
+      .preview-card strong {
+        display: block;
+        font-size: 13px;
+        margin-bottom: 4px;
+      }
+      .preview-main {
+        display: grid;
+        align-content: start;
+        gap: 12px;
+        padding: 16px;
+      }
+      .preview-summary {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .preview-card strong { font-size: 20px; }
+      .preview-health {
+        border: 1px solid rgba(15, 118, 110, 0.24);
+        border-radius: 8px;
+        background: var(--mint);
+        padding: 12px;
+        color: var(--teal);
+      }
+      .preview-health strong { display: block; margin-bottom: 3px; }
+      .preview-timeline {
+        display: grid;
+        gap: 8px;
+      }
+      .preview-day {
+        display: grid;
+        grid-template-columns: 72px minmax(0, 1fr);
+        gap: 10px;
+        align-items: center;
+      }
+      .preview-day-label {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 750;
+      }
+      .preview-track {
+        position: relative;
+        height: 30px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface-soft);
+        overflow: hidden;
+      }
+      .preview-free,
+      .preview-slot {
+        position: absolute;
+        top: 5px;
+        height: 18px;
+        border-radius: 6px;
+      }
+      .preview-free { background: rgba(15, 118, 110, 0.14); border: 1px solid rgba(15, 118, 110, 0.22); }
+      .preview-slot { background: var(--blue); }
+      .preview-review {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+      main { padding-bottom: 56px; }
+      section {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 34px clamp(18px, 4vw, 52px);
+      }
+      .section-head {
+        display: grid;
+        gap: 8px;
+        max-width: 780px;
+        margin-bottom: 18px;
+      }
+      h2 {
+        margin: 0;
+        font-size: clamp(26px, 4vw, 42px);
+        line-height: 1.08;
+        letter-spacing: 0;
+      }
+      .section-head p,
+      .card p,
+      .step p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+      .card,
+      .step,
+      .note {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: 0 8px 24px rgba(16, 32, 51, 0.06);
+        padding: 18px;
+      }
+      .card strong,
+      .step strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 16px;
+      }
+      .feature-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin: 18px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+      .feature-list li {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface-soft);
+        padding: 12px;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+      .feature-list strong {
+        display: block;
+        color: var(--text);
+        margin-bottom: 4px;
+      }
+      .workflow {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .two-col {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+      .table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: 0 8px 24px rgba(16, 32, 51, 0.06);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 760px;
+      }
+      th,
+      td {
+        padding: 12px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+        line-height: 1.45;
+      }
+      th {
+        background: var(--surface-soft);
+        font-size: 12px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      td { color: var(--muted); }
+      td strong { color: var(--text); }
+      tr:last-child td { border-bottom: 0; }
+      code {
+        display: inline-block;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: var(--surface-soft);
+        padding: 1px 5px;
+        color: var(--blue-dark);
+        font-size: 0.92em;
+      }
+      pre {
+        margin: 12px 0 0;
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #0d1b2a;
+        color: #e9f2fb;
+        padding: 14px;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      pre code {
+        display: block;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        color: inherit;
+        padding: 0;
+      }
+      .checklist {
+        display: grid;
+        gap: 9px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .checklist li {
+        position: relative;
+        padding-left: 24px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .checklist li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 6px;
+        width: 12px;
+        height: 12px;
+        border-radius: 4px;
+        border: 2px solid var(--teal);
+        background: var(--mint);
+      }
+      .step-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        background: var(--blue-dark);
+        color: #ffffff;
+        font-weight: 800;
+        margin-bottom: 12px;
+      }
+      .split {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(280px, 0.8fr);
+        gap: 16px;
+        align-items: start;
+      }
+      .note {
+        background: #fffdf7;
+        border-color: rgba(183, 121, 31, 0.28);
+      }
+      .note strong { color: var(--gold); }
+      .footer {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 20px clamp(18px, 4vw, 52px) 42px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      @media (max-width: 880px) {
+        .hero,
+        .split,
+        .app-preview { grid-template-columns: 1fr; }
+        .grid,
+        .workflow,
+        .two-col,
+        .feature-list,
+        .preview-summary,
+        .preview-review { grid-template-columns: 1fr; }
+        .preview-sidebar { border-right: 0; border-bottom: 1px solid var(--line); }
+        .nav { align-items: flex-start; flex-direction: column; }
+        .nav-links { justify-content: flex-start; }
+        .hero-media { order: -1; }
+        .logo-panel img { width: min(100%, 230px); }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="nav">
+        <a class="nav-brand" href="#top" aria-label="Kairos home">
+          <img src="assets/kairos_logo.png" alt="">
+          <span>Kairos Calendar Agent</span>
+        </a>
+        <nav class="nav-links" aria-label="Page sections">
+          <a href="#features">Features</a>
+          <a href="#email">Email workflow</a>
+          <a href="#setup">Setup</a>
+          <a href="#admin">Admin</a>
+          <a href="#privacy">Privacy</a>
+          <a href="#updates">Updates</a>
+          <a class="button primary" href="https://kairos-calendar-agent.onrender.com">Open app</a>
+        </nav>
+      </header>
+
+      <main id="top">
+        <section class="hero">
+          <div>
+            <span class="eyebrow">Invite-only scheduling agent</span>
+            <h1>Kairos helps find meeting times across the calendars that matter.</h1>
+            <p class="lead">
+              Kairos connects selected Google and Microsoft calendars, applies your scheduling preferences,
+              reads scheduling emails, and prepares availability replies that are ready to send.
+            </p>
+            <div class="hero-actions">
+              <a class="button primary" href="#features">See functionality</a>
+              <a class="button" href="#setup">How beta access works</a>
+            </div>
+            <div class="hero-meta" aria-label="Supported capabilities">
+              <span class="pill">Google Calendar</span>
+              <span class="pill">Microsoft Outlook</span>
+              <span class="pill">Scheduling Gmail inbox</span>
+              <span class="pill">Mobile PWA</span>
+              <span class="pill">Updated Aug 17, 2026</span>
+            </div>
+          </div>
+          <div class="hero-media">
+            <div class="logo-panel">
+              <img src="assets/kairos_logo.png" alt="Kairos Calendar Agent logo">
+            </div>
+          </div>
+        </section>
+
+        <section id="features">
+          <div class="section-head">
+            <h2>What Kairos does</h2>
+            <p>
+              Kairos answers one practical question: when is there real availability after checking every
+              calendar account, preference, buffer, and scheduling rule the user cares about?
+            </p>
+          </div>
+          <div class="grid">
+            <article class="card">
+              <strong>Multi-account availability</strong>
+              <p>Connect multiple Google and Microsoft accounts, then choose exactly which calendars count as busy.</p>
+            </article>
+            <article class="card">
+              <strong>Preference-aware suggestions</strong>
+              <p>Use work hours, buffers, minimum notice, lunch blocks, priority tiers, and meeting placement rules.</p>
+            </article>
+            <article class="card">
+              <strong>Visual schedule review</strong>
+              <p>Scan open windows, suggested slots, connected accounts, and calendar health from a compact dashboard.</p>
+            </article>
+          </div>
+          <ul class="feature-list">
+            <li><strong>Priority tiers</strong> High, regular, and low priority requests can use different defaults.</li>
+            <li><strong>Preserve focus blocks</strong> Kairos can avoid splitting larger open blocks and prefer stacking meetings.</li>
+            <li><strong>Meal-aware scheduling</strong> Breakfast, lunch, and dinner requests can be constrained to expected time windows.</li>
+            <li><strong>Copy-ready formatting</strong> Availability can be copied as exact slots or consolidated windows.</li>
+            <li><strong>One-click holds</strong> Suggested slots can be placed on a selected Google or Microsoft calendar as tentative holds.</li>
+            <li><strong>Schedule from review</strong> Email requests can be converted into calendar invites from the chosen calendar account.</li>
+          </ul>
+          <div class="table-wrap" style="margin-top: 18px;">
+            <table aria-label="Kairos functionality matrix">
+              <thead>
+                <tr>
+                  <th>Area</th>
+                  <th>Functionality</th>
+                  <th>Status</th>
+                  <th>Setup needed</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Calendar connectors</strong></td>
+                  <td>Connect multiple Google Calendar and Microsoft Outlook accounts, with selected calendars per account.</td>
+                  <td>Live</td>
+                  <td>Provider OAuth credentials, user sign-in, selected calendars.</td>
+                </tr>
+                <tr>
+                  <td><strong>Availability search</strong></td>
+                  <td>Find openings across connected calendars using date range, duration, work hours, buffers, minimum notice, and priority tier.</td>
+                  <td>Live</td>
+                  <td>User connects calendars and saves preferences.</td>
+                </tr>
+                <tr>
+                  <td><strong>Natural-language search</strong></td>
+                  <td>Use the proposed-times box for search-style requests such as "find 20 mins in the second week of September, low priority."</td>
+                  <td>Live</td>
+                  <td>Text must include enough date or range language; duration defaults to 30 minutes if omitted.</td>
+                </tr>
+                <tr>
+                  <td><strong>Calendar health</strong></td>
+                  <td>Show connected provider counts, selected calendars, scheduling inbox status, last successful check, warnings, and scan activity.</td>
+                  <td>Live</td>
+                  <td>No extra setup beyond connected accounts.</td>
+                </tr>
+                <tr>
+                  <td><strong>User settings</strong></td>
+                  <td>Save reply name, default meeting length, work hours, day-specific avoid blocks, meeting placement, reply format, and priority profiles.</td>
+                  <td>Live</td>
+                  <td>User edits Settings in Kairos.</td>
+                </tr>
+                <tr>
+                  <td><strong>Email parsing</strong></td>
+                  <td>Parse pasted scheduling text and inbox emails for durations, proposed windows, date ranges, meal requests, and reply recipients.</td>
+                  <td>Live</td>
+                  <td>Paste text manually or connect the scheduling Gmail inbox.</td>
+                </tr>
+                <tr>
+                  <td><strong>Scheduling inbox</strong></td>
+                  <td>Scan a dedicated Gmail inbox, queue requests for review, generate replies, send to sender, reply all, mark processed, and mark read.</td>
+                  <td>Live</td>
+                  <td>Gmail API enabled with read, compose, and modify scopes.</td>
+                </tr>
+                <tr>
+                  <td><strong>Auto-replies</strong></td>
+                  <td>Automatically reply to allowlisted senders or groups when every non-Kairos participant is allowlisted and the request is high confidence.</td>
+                  <td>Live</td>
+                  <td>Scheduling inbox connected, background scan enabled, allowlist configured.</td>
+                </tr>
+                <tr>
+                  <td><strong>Holds and invites</strong></td>
+                  <td>Place tentative holds on selected calendars and schedule invites from the email review queue.</td>
+                  <td>Live</td>
+                  <td>Google calendar event scope or Microsoft <code>Calendars.ReadWrite</code>.</td>
+                </tr>
+                <tr>
+                  <td><strong>Zoom links</strong></td>
+                  <td>Create a Zoom meeting link and insert it into scheduled calendar invites.</td>
+                  <td>Implemented, pending Zoom authorization</td>
+                  <td>Zoom OAuth app approval with profile-read and meeting-write scopes.</td>
+                </tr>
+                <tr>
+                  <td><strong>Mobile app experience</strong></td>
+                  <td>Install the hosted web app on iPhone or Android as a Progressive Web App.</td>
+                  <td>Live</td>
+                  <td>Hosted HTTPS deployment and browser add-to-home-screen flow.</td>
+                </tr>
+                <tr>
+                  <td><strong>Admin console</strong></td>
+                  <td>Invite beta users, rotate invite codes, deactivate users, and review connected status and app/version info.</td>
+                  <td>Live</td>
+                  <td>Admin email included in <code>KAIROS_ADMINS</code>.</td>
+                </tr>
+                <tr>
+                  <td><strong>Apple Calendar</strong></td>
+                  <td>Local Mac Apple Calendar reading exists for local use but is not recommended for hosted beta reliability.</td>
+                  <td>Experimental/local only</td>
+                  <td>Mac Calendar app permissions and local-only testing.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="email">
+          <div class="section-head">
+            <h2>Email scheduling workflow</h2>
+            <p>
+              Kairos can work from pasted email text or from a dedicated scheduling inbox. The goal is to
+              reduce back-and-forth while keeping the user in control.
+            </p>
+          </div>
+          <div class="workflow">
+            <article class="step">
+              <span class="step-number">1</span>
+              <strong>Scan or paste</strong>
+              <p>Read a scheduling email, including natural language such as proposed weekdays, date ranges, or meeting length.</p>
+            </article>
+            <article class="step">
+              <span class="step-number">2</span>
+              <strong>Interpret the ask</strong>
+              <p>Extract duration, date range, proposed windows, meal requests, reply recipients, and review confidence.</p>
+            </article>
+            <article class="step">
+              <span class="step-number">3</span>
+              <strong>Check calendars</strong>
+              <p>Compare candidate times or requested date ranges against the user's selected calendars and preferences.</p>
+            </article>
+            <article class="step">
+              <span class="step-number">4</span>
+              <strong>Draft or send</strong>
+              <p>Review, edit, send to sender, reply all, mark processed, or schedule an invite directly from the queue.</p>
+            </article>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-head">
+            <h2>Interface preview</h2>
+            <p>
+              The current app is intentionally compact: accounts, calendar health, inbox activity,
+              email review, timeline, and suggested openings are available from one workspace.
+            </p>
+          </div>
+          <div class="app-preview" aria-label="Generic Kairos interface preview">
+            <div class="preview-sidebar">
+              <div class="preview-logo">
+                <img src="assets/kairos_logo.png" alt="">
+                <span>Kairos</span>
+              </div>
+              <div class="preview-control">
+                <strong>Find openings</strong>
+                <span>Next week, 30 minutes, regular priority</span>
+              </div>
+              <div class="preview-account">
+                <strong>Google Calendar</strong>
+                <span>Main calendar selected</span>
+              </div>
+              <div class="preview-account">
+                <strong>Microsoft Outlook</strong>
+                <span>Main calendar selected</span>
+              </div>
+              <div class="preview-account">
+                <strong>Scheduling inbox</strong>
+                <span>Connected for review queue</span>
+              </div>
+            </div>
+            <div class="preview-main">
+              <div class="preview-summary">
+                <div class="preview-card"><span>Accounts</span><strong>4</strong></div>
+                <div class="preview-card"><span>Busy blocks</span><strong>18</strong></div>
+                <div class="preview-card"><span>Free windows</span><strong>9</strong></div>
+                <div class="preview-card"><span>Suggested slots</span><strong>8</strong></div>
+              </div>
+              <div class="preview-health">
+                <strong>All connected accounts checked</strong>
+                <span>Google, Microsoft, and scheduling inbox status are visible before sending replies.</span>
+              </div>
+              <div class="preview-timeline" aria-hidden="true">
+                <div class="preview-day">
+                  <span class="preview-day-label">Mon</span>
+                  <span class="preview-track">
+                    <span class="preview-free" style="left: 8%; width: 32%;"></span>
+                    <span class="preview-slot" style="left: 14%; width: 8%;"></span>
+                    <span class="preview-free" style="left: 62%; width: 25%;"></span>
+                  </span>
+                </div>
+                <div class="preview-day">
+                  <span class="preview-day-label">Tue</span>
+                  <span class="preview-track">
+                    <span class="preview-free" style="left: 18%; width: 26%;"></span>
+                    <span class="preview-slot" style="left: 34%; width: 8%;"></span>
+                    <span class="preview-free" style="left: 70%; width: 18%;"></span>
+                  </span>
+                </div>
+                <div class="preview-day">
+                  <span class="preview-day-label">Wed</span>
+                  <span class="preview-track">
+                    <span class="preview-free" style="left: 5%; width: 24%;"></span>
+                    <span class="preview-free" style="left: 48%; width: 33%;"></span>
+                    <span class="preview-slot" style="left: 56%; width: 8%;"></span>
+                  </span>
+                </div>
+              </div>
+              <div class="preview-review">
+                <div class="preview-card">
+                  <strong>Draft review</strong>
+                  <span>Interpreted request, proposed range, generated reply, send controls.</span>
+                </div>
+                <div class="preview-card">
+                  <strong>Schedule invite</strong>
+                  <span>Choose target calendar, attendees, title, and optional meeting link.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="setup">
+          <div class="section-head">
+            <h2>Beta user setup</h2>
+            <p>
+              A beta user receives the hosted app URL, their invited email, and an invite code. After signing in,
+              they connect Google or Microsoft calendars, select calendars to include, and optionally connect a
+              scheduling Gmail inbox for email-based scheduling.
+            </p>
+          </div>
+          <div class="grid">
+            <article class="card">
+              <strong>1. Sign in</strong>
+              <p>Use the invited email and invite code provided by the Kairos admin.</p>
+            </article>
+            <article class="card">
+              <strong>2. Connect calendars</strong>
+              <p>Connect each Google or Microsoft account and select the calendars that should count as busy.</p>
+            </article>
+            <article class="card">
+              <strong>3. Start scheduling</strong>
+              <p>Find openings, check proposed times, review scheduling emails, or install the PWA on mobile.</p>
+            </article>
+          </div>
+          <div class="two-col" style="margin-top: 16px;">
+            <article class="card">
+              <strong>User checklist</strong>
+              <ul class="checklist">
+                <li>Open the hosted Kairos app URL and sign in with the invited email and invite code.</li>
+                <li>Connect every Google or Microsoft calendar account that should be checked.</li>
+                <li>Open each connected account's calendar picker and select only the calendars that should count as busy.</li>
+                <li>Open Settings and set reply name, default duration, work hours, priority tier defaults, buffers, minimum notice, and daily avoid blocks.</li>
+                <li>Run Find openings once and confirm Calendar Health says the expected accounts and calendars were checked.</li>
+                <li>Optionally connect the scheduling Gmail inbox, then scan the inbox and review the generated drafts before sending.</li>
+              </ul>
+            </article>
+            <article class="card">
+              <strong>Mobile install</strong>
+              <ul class="checklist">
+                <li>On iPhone, open Kairos in Safari, tap Share, then tap Add to Home Screen.</li>
+                <li>On Android, open Kairos in Chrome, open the menu, then tap Add to Home screen or Install.</li>
+                <li>Sign in from the installed app with the same invited email and invite code.</li>
+                <li>Use the same hosted app for desktop and mobile. Calendar connections and preferences are shared for that invited user.</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section id="admin">
+          <div class="section-head">
+            <h2>Admin and deployment setup</h2>
+            <p>
+              Kairos can run as an invite-only hosted PWA on a Node host with HTTPS and persistent storage.
+              The current deployment path uses Render, provider OAuth apps, and encrypted per-user storage.
+            </p>
+          </div>
+          <div class="two-col">
+            <article class="card">
+              <strong>Required deployment pieces</strong>
+              <ul class="checklist">
+                <li>Node web service running Kairos from the private GitHub repository.</li>
+                <li>Persistent disk or volume for encrypted user accounts, preferences, and processed email records.</li>
+                <li>Public HTTPS base URL for OAuth callbacks.</li>
+                <li>Strong random secrets for token encryption and signed Kairos sessions.</li>
+                <li>Invite list or admin-created invite records for beta users.</li>
+              </ul>
+            </article>
+            <article class="card">
+              <strong>Provider setup</strong>
+              <ul class="checklist">
+                <li>Google OAuth app with Calendar API and Gmail API enabled.</li>
+                <li>Microsoft Entra app registration with calendar read/write permissions.</li>
+                <li>Zoom OAuth app for meeting links once organization approval is available.</li>
+                <li>OAuth redirect URLs must exactly match the hosted callback URLs.</li>
+              </ul>
+            </article>
+          </div>
+          <div class="table-wrap" style="margin-top: 16px;">
+            <table aria-label="Kairos hosted environment variables">
+              <thead>
+                <tr>
+                  <th>Configuration</th>
+                  <th>Purpose</th>
+                  <th>Example pattern</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>PUBLIC_BASE_URL</code></td>
+                  <td>Hosted HTTPS URL used to build OAuth callbacks and app links.</td>
+                  <td><code>https://your-kairos-host.example.com</code></td>
+                </tr>
+                <tr>
+                  <td><code>KAIROS_REQUIRE_AUTH</code></td>
+                  <td>Enables invite-code login and per-user storage isolation.</td>
+                  <td><code>true</code></td>
+                </tr>
+                <tr>
+                  <td><code>KAIROS_INVITES</code></td>
+                  <td>Optional comma-separated beta invite list for initial users.</td>
+                  <td><code>user@example.com=random-code</code></td>
+                </tr>
+                <tr>
+                  <td><code>KAIROS_ADMINS</code></td>
+                  <td>Admin emails allowed to use the Admin console.</td>
+                  <td><code>admin@example.com</code></td>
+                </tr>
+                <tr>
+                  <td><code>TOKEN_VAULT_SECRET</code></td>
+                  <td>Encrypts connected account tokens. Rotating it invalidates stored account tokens.</td>
+                  <td>Generate with <code>openssl rand -base64 48</code></td>
+                </tr>
+                <tr>
+                  <td><code>KAIROS_SESSION_SECRET</code></td>
+                  <td>Signs Kairos login sessions.</td>
+                  <td>Generate with <code>openssl rand -base64 48</code></td>
+                </tr>
+                <tr>
+                  <td><code>GOOGLE_CLIENT_ID</code> and <code>GOOGLE_CLIENT_SECRET</code></td>
+                  <td>Google Calendar and Gmail OAuth credentials.</td>
+                  <td>From Google Cloud OAuth client.</td>
+                </tr>
+                <tr>
+                  <td><code>GOOGLE_REDIRECT_URI</code></td>
+                  <td>Google OAuth callback.</td>
+                  <td><code>https://your-kairos-host.example.com/oauth/google/callback</code></td>
+                </tr>
+                <tr>
+                  <td><code>MICROSOFT_CLIENT_ID</code> and <code>MICROSOFT_CLIENT_SECRET</code></td>
+                  <td>Microsoft Outlook Calendar OAuth credentials.</td>
+                  <td>From Microsoft Entra app registration.</td>
+                </tr>
+                <tr>
+                  <td><code>MICROSOFT_REDIRECT_URI</code></td>
+                  <td>Microsoft OAuth callback.</td>
+                  <td><code>https://your-kairos-host.example.com/oauth/microsoft/callback</code></td>
+                </tr>
+                <tr>
+                  <td><code>ZOOM_CLIENT_ID</code>, <code>ZOOM_CLIENT_SECRET</code>, and <code>ZOOM_REDIRECT_URI</code></td>
+                  <td>Optional Zoom OAuth credentials for meeting links.</td>
+                  <td><code>https://your-kairos-host.example.com/oauth/zoom/callback</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <pre><code>Build command: npm install &amp;&amp; npm test
+Start command: npm start
+Health check path: /health
+Persistent data path: /var/data/kairos</code></pre>
+        </section>
+
+        <section id="privacy">
+          <div class="split">
+            <div>
+              <div class="section-head">
+                <h2>Access and privacy model</h2>
+                <p>
+                  Kairos is designed for a private beta. Users sign in with an invite code, connect their own
+                  calendar accounts, and can revoke provider access through Google or Microsoft at any time.
+                </p>
+              </div>
+              <ul class="feature-list">
+                <li><strong>Selected calendars only</strong> Users choose which calendars Kairos should consider.</li>
+                <li><strong>OAuth-based access</strong> Calendar and inbox access is granted by the user's provider account.</li>
+                <li><strong>Encrypted token storage</strong> Connected account tokens are stored encrypted by the app.</li>
+                <li><strong>Lightweight status tracking</strong> Health checks store counts and warnings, not full calendar contents.</li>
+              </ul>
+            </div>
+            <aside class="note">
+              <strong>Current beta status</strong>
+              <p>
+                Kairos is not yet a public self-serve SaaS product. The current version is best for trusted
+                beta users who are comfortable with invite-only access while OAuth verification and broader
+                onboarding are refined.
+              </p>
+            </aside>
+          </div>
+        </section>
+
+        <section id="updates">
+          <div class="section-head">
+            <h2>Keeping this page current</h2>
+            <p>
+              The public page should be updated in the same change set as product functionality. When Kairos adds,
+              removes, or changes a workflow, update this page before shipping.
+            </p>
+          </div>
+          <div class="two-col">
+            <article class="card">
+              <strong>Update checklist</strong>
+              <ul class="checklist">
+                <li>Add new user-facing features to the functionality matrix.</li>
+                <li>Update setup steps when OAuth scopes, redirect URLs, environment variables, or deployment steps change.</li>
+                <li>Update privacy language if stored data, processed email behavior, or provider access changes.</li>
+                <li>Refresh the last-updated date in the hero.</li>
+                <li>Run the test suite before publishing.</li>
+              </ul>
+            </article>
+            <article class="card">
+              <strong>Publication model</strong>
+              <p>
+                Because the Kairos source repository is private, the public GitHub Pages site should be published
+                from a separate public repository that contains only this page, the logo, and other sanitized assets.
+              </p>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        Kairos Calendar Agent is in private beta. Built for accurate availability, less scheduling back-and-forth, and user-controlled calendar access.
+      </footer>
+    </div>
+  </body>
+</html>
