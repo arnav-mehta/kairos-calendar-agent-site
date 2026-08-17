@@ -6,7 +6,7 @@
     <title>Kairos Calendar Agent</title>
     <meta
       name="description"
-      content="Kairos is an invite-only calendar agent that helps find availability across selected Google and Microsoft calendars, scheduling preferences, and email requests."
+      content="Kairos is an invite-only calendar agent that helps find availability across selected Google and Microsoft calendars, scheduling preferences, email requests, calendar invites, and Zoom links."
     >
     <style>
       :root {
@@ -501,7 +501,8 @@
             <h1>Kairos helps find meeting times across the calendars that matter.</h1>
             <p class="lead">
               Kairos connects selected Google and Microsoft calendars, applies your scheduling preferences,
-              reads scheduling emails, and prepares availability replies that are ready to send.
+              reads scheduling emails, prepares availability replies, and can schedule calendar invites with
+              optional Zoom links.
             </p>
             <div class="hero-actions">
               <a class="button primary" href="#features">See functionality</a>
@@ -511,6 +512,7 @@
               <span class="pill">Google Calendar</span>
               <span class="pill">Microsoft Outlook</span>
               <span class="pill">Scheduling Gmail inbox</span>
+              <span class="pill">Zoom meeting links</span>
               <span class="pill">Mobile PWA</span>
               <span class="pill">Updated Aug 17, 2026</span>
             </div>
@@ -550,8 +552,28 @@
             <li><strong>Meal-aware scheduling</strong> Breakfast, lunch, and dinner requests can be constrained to expected time windows.</li>
             <li><strong>Copy-ready formatting</strong> Availability can be copied as exact slots or consolidated windows.</li>
             <li><strong>One-click holds</strong> Suggested slots can be placed on a selected Google or Microsoft calendar as tentative holds.</li>
-            <li><strong>Schedule from review</strong> Email requests can be converted into calendar invites from the chosen calendar account.</li>
+            <li><strong>Schedule from review</strong> Confirmed email times can be converted into calendar invites from the chosen calendar account.</li>
           </ul>
+          <div class="two-col" style="margin-top: 18px;">
+            <article class="card">
+              <strong>Latest beta updates</strong>
+              <ul class="checklist">
+                <li>Zoom OAuth support is available for users who connect a Zoom account and have the required Zoom app approval.</li>
+                <li>The Schedule invite flow can add a Zoom link, choose the sending calendar, and use a custom calendar invite title.</li>
+                <li>Confirmed replies such as "Lets go ahead with 8/21 at 1215pm" are recognized as confirmed times for invite review.</li>
+                <li>Confirmed-time emails are held for manual review instead of being auto-replied, so the user can create the invite.</li>
+              </ul>
+            </article>
+            <article class="card">
+              <strong>Inbox reliability updates</strong>
+              <ul class="checklist">
+                <li>Emails handled by manual replies, auto-replies, invite scheduling, or Mark processed are marked processed and read.</li>
+                <li>The review queue focuses on recent scan activity instead of accumulating stale inbox output.</li>
+                <li>Auto-replies remain limited to allowlisted participants and pause when calendar coverage is incomplete.</li>
+                <li>When a confirmed time needs an invite, the status reads: confirmed time needs invite review.</li>
+              </ul>
+            </article>
+          </div>
           <div class="table-wrap" style="margin-top: 18px;">
             <table aria-label="Kairos functionality matrix">
               <thead>
@@ -601,7 +623,7 @@
                 </tr>
                 <tr>
                   <td><strong>Email parsing</strong></td>
-                  <td>Parse pasted scheduling text and inbox emails for durations, proposed windows, date ranges, meal requests, and reply recipients.</td>
+                  <td>Parse pasted scheduling text and inbox emails for durations, proposed windows, confirmed times, date ranges, meal requests, and reply recipients.</td>
                   <td>Live</td>
                   <td>Paste text manually or connect the scheduling Gmail inbox.</td>
                 </tr>
@@ -613,21 +635,21 @@
                 </tr>
                 <tr>
                   <td><strong>Auto-replies</strong></td>
-                  <td>Automatically reply to allowlisted senders or groups when every non-Kairos participant is allowlisted and the request is high confidence.</td>
+                  <td>Automatically reply to allowlisted senders or groups when every non-Kairos participant is allowlisted and the request is high confidence; confirmed-time replies are held for invite review.</td>
                   <td>Live</td>
                   <td>Scheduling inbox connected, background scan enabled, allowlist configured.</td>
                 </tr>
                 <tr>
                   <td><strong>Holds and invites</strong></td>
-                  <td>Place tentative holds on selected calendars and schedule invites from the email review queue.</td>
+                  <td>Place tentative holds on selected calendars and schedule exact-duration invites from proposed or confirmed times in the email review queue.</td>
                   <td>Live</td>
                   <td>Google calendar event scope or Microsoft <code>Calendars.ReadWrite</code>.</td>
                 </tr>
                 <tr>
                   <td><strong>Zoom links</strong></td>
-                  <td>Create a Zoom meeting link and insert it into scheduled calendar invites.</td>
-                  <td>Implemented, pending Zoom authorization</td>
-                  <td>Zoom OAuth app approval with profile-read and meeting-write scopes.</td>
+                  <td>Create a Zoom meeting link and insert it into scheduled calendar invites when the user selects Add Zoom link.</td>
+                  <td>Live when connected</td>
+                  <td>Zoom OAuth app approval, <code>ZOOM_CLIENT_ID</code>, <code>ZOOM_CLIENT_SECRET</code>, <code>ZOOM_REDIRECT_URI</code>, and user connection through Connect Zoom.</td>
                 </tr>
                 <tr>
                   <td><strong>Mobile app experience</strong></td>
@@ -678,8 +700,24 @@
             </article>
             <article class="step">
               <span class="step-number">4</span>
-              <strong>Draft or send</strong>
-              <p>Review, edit, send to sender, reply all, mark processed, or schedule an invite directly from the queue.</p>
+              <strong>Reply or schedule</strong>
+              <p>Review, edit, send to sender, reply all, mark processed, or schedule an invite with an optional Zoom link directly from the queue.</p>
+            </article>
+          </div>
+          <div class="two-col" style="margin-top: 16px;">
+            <article class="card">
+              <strong>Confirmed-time replies</strong>
+              <p>
+                When someone replies with a selected time, such as "that works" or "Lets go ahead with 8/21 at 1215pm",
+                Kairos treats it as a confirmed-time item and keeps it in the review queue for invite creation.
+              </p>
+            </article>
+            <article class="card">
+              <strong>Invite creation</strong>
+              <p>
+                From the review drawer, the user chooses the target Google or Microsoft calendar, confirms attendees,
+                edits the calendar title if needed, and can include a Zoom meeting link.
+              </p>
             </article>
           </div>
         </section>
@@ -759,7 +797,7 @@
                 </div>
                 <div class="preview-card">
                   <strong>Schedule invite</strong>
-                  <span>Choose target calendar, attendees, title, and optional meeting link.</span>
+                  <span>Choose target calendar, attendees, custom title, and optional Zoom link.</span>
                 </div>
               </div>
             </div>
@@ -796,9 +834,10 @@
                 <li>Open the hosted Kairos app URL and sign in with the invited email and invite code.</li>
                 <li>Connect every Google or Microsoft calendar account that should be checked.</li>
                 <li>Open each connected account's calendar picker and select only the calendars that should count as busy.</li>
+                <li>Optionally connect Zoom if calendar invites should include Zoom meeting links.</li>
                 <li>Open Settings and set reply name, default duration, work hours, priority tier defaults, buffers, minimum notice, and daily avoid blocks.</li>
                 <li>Run an Ask Kairos search once and confirm Calendar Health says the expected accounts and calendars were checked.</li>
-                <li>Optionally connect the scheduling Gmail inbox, then scan the inbox and review the generated drafts before sending.</li>
+                <li>Optionally connect the scheduling Gmail inbox, then scan the inbox and review generated drafts or confirmed-time invite requests before sending.</li>
               </ul>
             </article>
             <article class="card">
@@ -837,7 +876,7 @@
               <ul class="checklist">
                 <li>Google OAuth app with Calendar API and Gmail API enabled.</li>
                 <li>Microsoft Entra app registration with calendar read/write permissions.</li>
-                <li>Zoom OAuth app for meeting links once organization approval is available.</li>
+                <li>Zoom OAuth app for meeting links, with organization approval if required by the Zoom account.</li>
                 <li>OAuth redirect URLs must exactly match the hosted callback URLs.</li>
               </ul>
             </article>
@@ -904,7 +943,7 @@
                 </tr>
                 <tr>
                   <td><code>ZOOM_CLIENT_ID</code>, <code>ZOOM_CLIENT_SECRET</code>, and <code>ZOOM_REDIRECT_URI</code></td>
-                  <td>Optional Zoom OAuth credentials for meeting links.</td>
+                  <td>Optional Zoom OAuth credentials used when a user connects Zoom and includes a Zoom link in an invite.</td>
                   <td><code>https://your-kairos-host.example.com/oauth/zoom/callback</code></td>
                 </tr>
               </tbody>
