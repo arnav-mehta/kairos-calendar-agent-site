@@ -562,6 +562,8 @@
                 <li>The Schedule invite flow can add a Zoom link, choose the sending calendar, and use a custom calendar invite title.</li>
                 <li>Confirmed replies such as "Lets go ahead with 8/21 at 1215pm" are recognized as confirmed times for invite review.</li>
                 <li>Confirmed-time emails are held for manual review instead of being auto-replied, so the user can create the invite.</li>
+                <li>Ask Kairos results now show confidence labels, a Why this result drawer, nearby alternatives for conflicts, and an editable suggested reply.</li>
+                <li>Find openings also fills the Command tab with a copy-ready editable reply based on the filtered search.</li>
               </ul>
             </article>
             <article class="card">
@@ -593,7 +595,7 @@
                 </tr>
                 <tr>
                   <td><strong>Availability search</strong></td>
-                  <td>Find openings across connected calendars using date range, duration, work hours, buffers, minimum notice, and priority tier.</td>
+                  <td>Find openings across connected calendars using date range, duration, work hours, buffers, minimum notice, and priority tier. Filter-based searches also populate the Command tab with an editable, copy-ready reply.</td>
                   <td>Live</td>
                   <td>User connects calendars and saves preferences.</td>
                 </tr>
@@ -605,7 +607,7 @@
                 </tr>
                 <tr>
                   <td><strong>Compact dashboard</strong></td>
-                  <td>Review one-line account rows, grouped openings by day, and a right-side draft review drawer for scanned email requests.</td>
+                  <td>Review one-line account rows, grouped openings by day, Command reply drafts, confidence labels, Why this result details, and a right-side draft review drawer for scanned email requests.</td>
                   <td>Live</td>
                   <td>No extra setup beyond the hosted app.</td>
                 </tr>
@@ -796,6 +798,10 @@
                   <span>Interpreted request, proposed range, generated reply, send controls.</span>
                 </div>
                 <div class="preview-card">
+                  <strong>Command draft</strong>
+                  <span>Find openings and Ask Kairos both create editable, copy-ready reply text.</span>
+                </div>
+                <div class="preview-card">
                   <strong>Schedule invite</strong>
                   <span>Choose target calendar, attendees, custom title, and optional Zoom link.</span>
                 </div>
@@ -836,7 +842,8 @@
                 <li>Open each connected account's calendar picker and select only the calendars that should count as busy.</li>
                 <li>Optionally connect Zoom if calendar invites should include Zoom meeting links.</li>
                 <li>Open Settings and set reply name, default duration, work hours, priority tier defaults, buffers, minimum notice, and daily avoid blocks.</li>
-                <li>Run an Ask Kairos search once and confirm Calendar Health says the expected accounts and calendars were checked.</li>
+                <li>Run Find openings once, open the Command tab to review the generated reply draft, and confirm Calendar Health says the expected accounts and calendars were checked.</li>
+                <li>Use Ask Kairos for natural-language requests or pasted proposed times; use Find openings for filter-based searches.</li>
                 <li>Optionally connect the scheduling Gmail inbox, then scan the inbox and review generated drafts or confirmed-time invite requests before sending.</li>
               </ul>
             </article>
