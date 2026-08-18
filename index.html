@@ -560,11 +560,13 @@
               <ul class="checklist">
                 <li>Zoom OAuth support is available for users who connect a Zoom account and have the required Zoom app approval.</li>
                 <li>The Schedule invite flow can add a Zoom link, choose the sending calendar, and use a custom calendar invite title.</li>
+                <li>Invite review can save the selected sending calendar and Zoom choice as the user's defaults for future invites.</li>
                 <li>Confirmed replies such as "Lets go ahead with 8/21 at 1215pm" are recognized as confirmed times for invite review.</li>
                 <li>Confirmed-time emails are held for manual review instead of being auto-replied, so the user can create the invite.</li>
                 <li>Ask Kairos results now show confidence labels, a Why this result drawer, nearby alternatives for conflicts, and an editable suggested reply.</li>
                 <li>Find openings also fills the Command tab with a copy-ready editable reply based on the filtered search.</li>
                 <li>The Availability Accuracy Inspector explains what calendars were checked, direct busy overlaps, buffer effects, nearby busy blocks, and provider warnings.</li>
+                <li>All-day calendar events are ignored by availability search and invite conflict checks, keeping banner-style date reminders from blocking real meeting times.</li>
                 <li>The mobile PWA now uses a compact Connections pull-down and jumps to Results Review after each availability request.</li>
                 <li>The phone layout folds Tools and Diagnostics into pull-downs, hides routine health banners, and keeps warning banners visible.</li>
               </ul>
@@ -646,13 +648,13 @@
                 </tr>
                 <tr>
                   <td><strong>Holds and invites</strong></td>
-                  <td>Place tentative holds on selected calendars and schedule exact-duration invites from proposed or confirmed times in the email review queue.</td>
+                  <td>Place tentative holds on selected calendars, schedule exact-duration invites from proposed or confirmed times, and save a default invite calendar for future sending.</td>
                   <td>Live</td>
                   <td>Google calendar event scope or Microsoft <code>Calendars.ReadWrite</code>.</td>
                 </tr>
                 <tr>
                   <td><strong>Zoom links</strong></td>
-                  <td>Create a Zoom meeting link and insert it into scheduled calendar invites when the user selects Add Zoom link.</td>
+                  <td>Create a Zoom meeting link, insert it into scheduled calendar invites, and save a default Zoom account for future invite creation.</td>
                   <td>Live when connected</td>
                   <td>Zoom OAuth app approval, <code>ZOOM_CLIENT_ID</code>, <code>ZOOM_CLIENT_SECRET</code>, <code>ZOOM_REDIRECT_URI</code>, and user connection through Connect Zoom.</td>
                 </tr>
@@ -721,7 +723,7 @@
               <strong>Invite creation</strong>
               <p>
                 From the review drawer, the user chooses the target Google or Microsoft calendar, confirms attendees,
-                edits the calendar title if needed, and can include a Zoom meeting link.
+                edits the calendar title if needed, can include a Zoom meeting link, and can save that calendar or Zoom account as the default for future invites.
               </p>
             </article>
           </div>
